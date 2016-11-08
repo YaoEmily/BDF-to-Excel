@@ -971,20 +971,6 @@ namespace _20161018
 
 
 
-
-
-        private void btn_convertToXlsx_Click(object sender, EventArgs e)
-        {
-            progressParameter = 0;
-            txtTest.Text = "";
-            timer1.Enabled = true;
-            btn_stop.Enabled = true;
-
-            thread = new Thread(initXlsx);
-            thread.IsBackground = true;
-            thread.Start();
-        }
-
         /// <summary>
         /// XLSX运行函数
         /// </summary>
@@ -1154,6 +1140,12 @@ namespace _20161018
             }
         }
 
+
+        /// <summary>
+        /// YY单选选中触发函数
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void radioBtnYY_CheckedChanged(object sender, EventArgs e)
         {
             if (radioBtnYY.Checked)
@@ -1166,6 +1158,12 @@ namespace _20161018
             }
         }
 
+
+        /// <summary>
+        /// YT单选选中触发函数
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void radioBtnYT_CheckedChanged(object sender, EventArgs e)
         {
             if (radioBtnYT.Checked)
@@ -1178,6 +1176,12 @@ namespace _20161018
             }
         }
 
+
+        /// <summary>
+        /// YF单选选中触发函数
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void radioBtnYF_CheckedChanged(object sender, EventArgs e)
         {
             if (radioBtnYF.Checked)
@@ -1191,6 +1195,11 @@ namespace _20161018
         }
 
 
+        /// <summary>
+        /// 进度条更新
+        /// </summary>
+        /// <param name="ipos"></param>
+        /// <param name="vinfo"></param>
         private void SetTextMesssage(int ipos, string vinfo)
         {
             if (this.InvokeRequired)
@@ -1205,6 +1214,11 @@ namespace _20161018
             }
         }
 
+        /// <summary>
+        /// 进度条更新触发时间点
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void timer2_Tick(object sender, EventArgs e)
         {
             SetTextMesssage(100 * progressParameter / 500, progressParameter.ToString() + "\r\n");
