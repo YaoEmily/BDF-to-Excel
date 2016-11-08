@@ -1,0 +1,14 @@
+D:\Documents\GitHub\ConvertKid\20161018\20161018\bin\Debug\20161018.exe.config
+D:\Documents\GitHub\ConvertKid\20161018\20161018\bin\Debug\20161018.exe
+D:\Documents\GitHub\ConvertKid\20161018\20161018\bin\Debug\20161018.pdb
+D:\Documents\GitHub\ConvertKid\20161018\20161018\bin\Debug\EPPlus.dll
+D:\Documents\GitHub\ConvertKid\20161018\20161018\bin\Debug\ICSharpCode.SharpZipLib.dll
+D:\Documents\GitHub\ConvertKid\20161018\20161018\bin\Debug\EPPlus.xml
+D:\Documents\GitHub\ConvertKid\20161018\20161018\bin\Debug\NPOI.xml
+D:\Documents\GitHub\ConvertKid\20161018\20161018\obj\Debug\ConvertKid.csprojResolveAssemblyReference.cache
+D:\Documents\GitHub\ConvertKid\20161018\20161018\obj\Debug\ConvertKid.csproj.ResolveComReference.cache
+D:\Documents\GitHub\ConvertKid\20161018\20161018\obj\Debug\_20161018.Form1.resources
+D:\Documents\GitHub\ConvertKid\20161018\20161018\obj\Debug\_20161018.Properties.Resources.resources
+D:\Documents\GitHub\ConvertKid\20161018\20161018\obj\Debug\ConvertKid.csproj.GenerateResource.Cache
+D:\Documents\GitHub\ConvertKid\20161018\20161018\obj\Debug\20161018.exe
+D:\Documents\GitHub\ConvertKid\20161018\20161018\obj\Debug\20161018.pdb

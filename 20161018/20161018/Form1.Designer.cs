@@ -32,8 +32,7 @@
             this.btn_inputFile = new System.Windows.Forms.Button();
             this.txtTest = new System.Windows.Forms.TextBox();
             this.txt_showPath = new System.Windows.Forms.TextBox();
-            this.btn_convertToDbf = new System.Windows.Forms.Button();
-            this.btn_convertToXlsx = new System.Windows.Forms.Button();
+            this.btn_convert = new System.Windows.Forms.Button();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.lab_time = new System.Windows.Forms.Label();
             this.lab_time_show = new System.Windows.Forms.Label();
@@ -42,8 +41,8 @@
             this.radioBtnYT = new System.Windows.Forms.RadioButton();
             this.radioBtnYF = new System.Windows.Forms.RadioButton();
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
-            this.btn_progressBar = new System.Windows.Forms.Button();
             this.lab_test = new System.Windows.Forms.Label();
+            this.timer2 = new System.Windows.Forms.Timer(this.components);
             this.SuspendLayout();
             // 
             // btn_inputFile
@@ -62,7 +61,7 @@
             this.txtTest.Multiline = true;
             this.txtTest.Name = "txtTest";
             this.txtTest.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.txtTest.Size = new System.Drawing.Size(378, 65);
+            this.txtTest.Size = new System.Drawing.Size(378, 139);
             this.txtTest.TabIndex = 1;
             // 
             // txt_showPath
@@ -73,27 +72,16 @@
             this.txt_showPath.Size = new System.Drawing.Size(297, 21);
             this.txt_showPath.TabIndex = 2;
             // 
-            // btn_convertToDbf
+            // btn_convert
             // 
-            this.btn_convertToDbf.Enabled = false;
-            this.btn_convertToDbf.Location = new System.Drawing.Point(168, 43);
-            this.btn_convertToDbf.Name = "btn_convertToDbf";
-            this.btn_convertToDbf.Size = new System.Drawing.Size(75, 23);
-            this.btn_convertToDbf.TabIndex = 3;
-            this.btn_convertToDbf.Text = "转换为dbf";
-            this.btn_convertToDbf.UseVisualStyleBackColor = true;
-            this.btn_convertToDbf.Click += new System.EventHandler(this.btn_convert_Click);
-            // 
-            // btn_convertToXlsx
-            // 
-            this.btn_convertToXlsx.Enabled = false;
-            this.btn_convertToXlsx.Location = new System.Drawing.Point(263, 43);
-            this.btn_convertToXlsx.Name = "btn_convertToXlsx";
-            this.btn_convertToXlsx.Size = new System.Drawing.Size(75, 23);
-            this.btn_convertToXlsx.TabIndex = 5;
-            this.btn_convertToXlsx.Text = "转换为xlsx";
-            this.btn_convertToXlsx.UseVisualStyleBackColor = true;
-            this.btn_convertToXlsx.Click += new System.EventHandler(this.btn_convertToXlsx_Click);
+            this.btn_convert.Enabled = false;
+            this.btn_convert.Location = new System.Drawing.Point(234, 46);
+            this.btn_convert.Name = "btn_convert";
+            this.btn_convert.Size = new System.Drawing.Size(75, 23);
+            this.btn_convert.TabIndex = 3;
+            this.btn_convert.Text = "转换";
+            this.btn_convert.UseVisualStyleBackColor = true;
+            this.btn_convert.Click += new System.EventHandler(this.btn_convert_Click);
             // 
             // timer1
             // 
@@ -102,7 +90,7 @@
             // lab_time
             // 
             this.lab_time.AutoSize = true;
-            this.lab_time.Location = new System.Drawing.Point(261, 87);
+            this.lab_time.Location = new System.Drawing.Point(232, 90);
             this.lab_time.Name = "lab_time";
             this.lab_time.Size = new System.Drawing.Size(65, 12);
             this.lab_time.TabIndex = 6;
@@ -111,7 +99,7 @@
             // lab_time_show
             // 
             this.lab_time_show.AutoSize = true;
-            this.lab_time_show.Location = new System.Drawing.Point(332, 87);
+            this.lab_time_show.Location = new System.Drawing.Point(303, 90);
             this.lab_time_show.Name = "lab_time_show";
             this.lab_time_show.Size = new System.Drawing.Size(0, 12);
             this.lab_time_show.TabIndex = 7;
@@ -119,7 +107,7 @@
             // btn_stop
             // 
             this.btn_stop.Enabled = false;
-            this.btn_stop.Location = new System.Drawing.Point(168, 82);
+            this.btn_stop.Location = new System.Drawing.Point(315, 46);
             this.btn_stop.Name = "btn_stop";
             this.btn_stop.Size = new System.Drawing.Size(75, 23);
             this.btn_stop.TabIndex = 8;
@@ -167,16 +155,6 @@
             this.progressBar1.Size = new System.Drawing.Size(377, 23);
             this.progressBar1.TabIndex = 12;
             // 
-            // btn_progressBar
-            // 
-            this.btn_progressBar.Location = new System.Drawing.Point(315, 141);
-            this.btn_progressBar.Name = "btn_progressBar";
-            this.btn_progressBar.Size = new System.Drawing.Size(75, 23);
-            this.btn_progressBar.TabIndex = 13;
-            this.btn_progressBar.Text = "开始";
-            this.btn_progressBar.UseVisualStyleBackColor = true;
-            this.btn_progressBar.Click += new System.EventHandler(this.btn_progressBar_Click);
-            // 
             // lab_test
             // 
             this.lab_test.AutoSize = true;
@@ -186,13 +164,16 @@
             this.lab_test.TabIndex = 14;
             this.lab_test.Text = "0/100";
             // 
+            // timer2
+            // 
+            this.timer2.Tick += new System.EventHandler(this.timer2_Tick);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(402, 262);
+            this.ClientSize = new System.Drawing.Size(402, 336);
             this.Controls.Add(this.lab_test);
-            this.Controls.Add(this.btn_progressBar);
             this.Controls.Add(this.progressBar1);
             this.Controls.Add(this.radioBtnYF);
             this.Controls.Add(this.radioBtnYT);
@@ -200,8 +181,7 @@
             this.Controls.Add(this.btn_stop);
             this.Controls.Add(this.lab_time_show);
             this.Controls.Add(this.lab_time);
-            this.Controls.Add(this.btn_convertToXlsx);
-            this.Controls.Add(this.btn_convertToDbf);
+            this.Controls.Add(this.btn_convert);
             this.Controls.Add(this.txt_showPath);
             this.Controls.Add(this.txtTest);
             this.Controls.Add(this.btn_inputFile);
@@ -219,8 +199,7 @@
         private System.Windows.Forms.Button btn_inputFile;
         private System.Windows.Forms.TextBox txtTest;
         private System.Windows.Forms.TextBox txt_showPath;
-        private System.Windows.Forms.Button btn_convertToDbf;
-        private System.Windows.Forms.Button btn_convertToXlsx;
+        private System.Windows.Forms.Button btn_convert;
         private System.Windows.Forms.Timer timer1;
         private System.Windows.Forms.Label lab_time;
         private System.Windows.Forms.Label lab_time_show;
@@ -229,8 +208,8 @@
         private System.Windows.Forms.RadioButton radioBtnYT;
         private System.Windows.Forms.RadioButton radioBtnYF;
         private System.Windows.Forms.ProgressBar progressBar1;
-        private System.Windows.Forms.Button btn_progressBar;
         private System.Windows.Forms.Label lab_test;
+        private System.Windows.Forms.Timer timer2;
     }
 }
 

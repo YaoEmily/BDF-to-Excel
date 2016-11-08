@@ -9,12 +9,9 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
 using System.Data.OleDb;
-//using Microsoft.Office.Interop.Excel;
 using System.Collections;
 using System.Text.RegularExpressions;
 using System.Threading;
-//using Excel = Microsoft.Office.Interop.Excel;
-//using NPOI.XSSF.UserModel;
 using OfficeOpenXml;
 
 namespace _20161018
@@ -26,10 +23,8 @@ namespace _20161018
         private String inPath;
         private String extensionName;
         private String fileName;
-        private String kindName;
         private String methodName = "";
         private Thread thread;
-        private Thread proBarThread;
         private DateTime startTime;
         private DateTime endTime;
         TimeSpan subTime;
@@ -44,8 +39,9 @@ namespace _20161018
         private Dictionary<String, int> weight_HW_HD = new Dictionary<string, int>();
         private int allLine;
         private int currentLine;
-        private String HX;
+        private int progressParameter = 0;
 
+        private String HX;
 
         private delegate void SetPos(int ipos, string vinfo);
 
@@ -80,16 +76,11 @@ namespace _20161018
 
             fileName = Path.GetFileNameWithoutExtension(inPath);
             extensionName = Path.GetExtension(inPath);
-            StringBuilder sb = new StringBuilder();
-            sb.Append(fileName[0] + fileName[1]);
-            kindName = sb.ToString();
 
             if (methodName != "")
             {
-                btn_convertToDbf.Enabled = true;
-                btn_convertToXlsx.Enabled = true;
+                btn_convert.Enabled = true;
             }
-
         }
 
 
@@ -102,13 +93,26 @@ namespace _20161018
         /// <param name="e"></param>
         private void btn_convert_Click(object sender, EventArgs e)
         {
+            progressParameter = 0;
+
             txtTest.Text = "";
             timer1.Enabled = true;
+            timer2.Enabled = true;
             btn_stop.Enabled = true;
 
-            thread = new Thread(initDbf);
-            thread.IsBackground = true;
-            thread.Start();
+            if (extensionName == ".xlsx")
+            {
+                thread = new Thread(initXlsx);
+                thread.IsBackground = true;
+                thread.Start();
+            }
+            else
+            {
+                thread = new Thread(initDbf);
+                thread.IsBackground = true;
+                thread.Start();
+            }
+
         }
 
 
@@ -119,16 +123,15 @@ namespace _20161018
         {
             startTime = DateTime.Now;
 
-            btn_convertToXlsx.Enabled = false;
             btn_inputFile.Enabled = false;
-            btn_convertToDbf.Enabled = false;
+            btn_convert.Enabled = false;
             radioBtnYY.Enabled = false;
             radioBtnYT.Enabled = false;
             radioBtnYF.Enabled = false;
 
             //写入DBF
             inputDBF();
-
+            progressParameter += 10;
             txtTest.AppendText(dtOld.Rows.Count.ToString() + " " + dtOld.Columns.Count.ToString() + "\n");
             if (dtOld != null && dtOld.Rows.Count > 0)
             {
@@ -142,28 +145,38 @@ namespace _20161018
                 if (methodName == "YY")
                 {
                     init();
+                    progressParameter += 10;
                     doWithInitHD();
+                    progressParameter += 20;
                     doWithDelete();
+                    progressParameter += 20;
                     doWithAdd();
+                    progressParameter += 20;
                     doWithCODE_SHARE();
                     doWithHD();
+                    progressParameter += 20;
                     outputDBF();
                 }
                 else if (methodName == "YT")
                 {
+                    progressParameter += 30;
                     doWithDelete();
+                    progressParameter += 30;
                     doWithAdd();
+                    progressParameter += 30;
                     outputDBF();
                 }
                 else
                 {
+                    progressParameter += 30;
                     init();
+                    progressParameter += 60;
                     outputDBF();
                 }
+                
             }
-            btn_convertToXlsx.Enabled = true;
             btn_inputFile.Enabled = true;
-            btn_convertToDbf.Enabled = true;
+            btn_convert.Enabled = true;
             btn_stop.Enabled = false;
             timer1.Enabled = false;
             radioBtnYF.Enabled = true;
@@ -223,7 +236,11 @@ namespace _20161018
             }
             else
             {
-
+                foreach (DataRow dr in dtNew.Rows)
+                {
+                    dr["FXD"] = dr["FXD"].ToString() + dr["DW"].ToString();
+                    dr["JH"] = "B-" + dr["JH"].ToString();
+                }
             }
         }
 
@@ -396,15 +413,6 @@ namespace _20161018
             DataView dv = dtNew.DefaultView;
             dv.Sort = "DATE_HBH_DW_HX_PBM";
             dtNew = dv.ToTable();
-
-            #region 显示排序列 DATE_HBH_DW_HX_PBM
-            //for (int i = 0; i < dtNew.Rows.Count; i++)
-            //{
-            //    drOperate = dtNew.Rows[i];
-            //    txtTest.AppendText(drOperate["DATE_HBH_DW_HX_PBM"] + " ");
-            //}
-            #endregion
-
         }
 
 
@@ -457,14 +465,6 @@ namespace _20161018
                             continue;
                         }
 
-                        //txtTest.AppendText("多行，当前中间2+ 行数=" + i + "HBH " + drOperate["hbh"] + "\n");
-
-                        //txtTest.AppendText("miao" + i + "\n");
-                        //txtTest.AppendText(drOperate["HD"].ToString().Trim() + Convert.ToInt32((drOperate["CR"]).ToString()));
-                        //foreach (var item in weight_CR_HD)
-                        //{
-                        //    txtTest.AppendText(item.Key + " " + item.Value + " hou ");
-                        //}
                         if (weight_CR_HD.ContainsKey(drOperate["HD"].ToString().Trim()))
                         {
 
@@ -491,15 +491,10 @@ namespace _20161018
                             weight_CR_HD.Add(drOperate["HD"].ToString().Trim(), Convert.ToInt32((drOperate["CR"]).ToString()));
                         }
                         weight_ET_HD.Add(drOperate["HD"].ToString().Trim(), Convert.ToInt32((drOperate["ET"]).ToString()));
-                        //txtTest.AppendText("2.3\n");
                         weight_YE_HD.Add(drOperate["HD"].ToString().Trim(), Convert.ToInt32((drOperate["YE"]).ToString()));
-                        //txtTest.AppendText("2.4\n");
                         weight_XL_HD.Add(drOperate["HD"].ToString().Trim(), Convert.ToInt32((drOperate["XL"]).ToString()));
-                        //txtTest.AppendText("2.5\n");
                         weight_YJ_HD.Add(drOperate["HD"].ToString().Trim(), Convert.ToInt32((drOperate["YJ"]).ToString()));
-                        //txtTest.AppendText("2.6\n");
                         weight_HW_HD.Add(drOperate["HD"].ToString().Trim(), Convert.ToInt32((drOperate["HW"]).ToString()));
-                        //txtTest.AppendText("2.7\n");
                     }
                     //多行，当前最后
                     else if (allLine > 1 && allLine == currentLine)
@@ -518,9 +513,6 @@ namespace _20161018
                                 weight_HW_HD.Clear();
                                 continue;
                             }
-
-                            //txtTest.AppendText("多行，当前最后3+ 行数=" + i + "HBH" + drOperate["hbh"] + "\n");
-
                             weight_CR_HD.Add(drOperate["HD"].ToString().Trim(), Convert.ToInt32((drOperate["CR"]).ToString()));
                             weight_ET_HD.Add(drOperate["HD"].ToString().Trim(), Convert.ToInt32((drOperate["ET"]).ToString()));
                             weight_YE_HD.Add(drOperate["HD"].ToString().Trim(), Convert.ToInt32((drOperate["YE"]).ToString()));
@@ -570,7 +562,6 @@ namespace _20161018
                     //单行或多行当前第一
                     else
                     {
-                        //txtTest.AppendText("外4+ 行数=" + i + "HBH" + drOperate["hbh"] + "\n");
                         HX = drOperate["HX"].ToString().Trim();
                         nodes_HD = HX.Split('-');
                         nodes_HD_Num = nodes_HD.Length;
@@ -579,8 +570,6 @@ namespace _20161018
                         //单行
                         if (nodes_HD_Num == 2)
                         {
-                            //txtTest.AppendText("单行5+ 行数=" + i + "HBH" + drOperate["hbh"] + "\n");
-
                             drOperate["CR_HD"] = drOperate["CR"];
                             drOperate["ET_HD"] = drOperate["ET"];
                             drOperate["YE_HD"] = drOperate["YE"];
@@ -593,23 +582,7 @@ namespace _20161018
                         //多行，当前第一
                         else
                         {
-                            //txtTest.AppendText("多行，当前第一6+ 行数=" + i + "HBH" + drOperate["hbh"] + "\n");
-
                             allLine = nodes_HD_Num * (nodes_HD_Num - 1) / 2;
-
-                            //txtTest.AppendText("miao" + i + "\n");
-                            //txtTest.AppendText(drOperate["HD"].ToString().Trim() + Convert.ToInt32((drOperate["CR"]).ToString()));
-                            //foreach (var item in weight_CR_HD)
-                            //{
-                            //    txtTest.AppendText(item.Key + " " + item.Value + " hou ");
-                            //}
-
-                            //txtTest.AppendText("nodes_hd\n");
-
-                            //for (int k = 0; k < nodes_HD.Length;k++ )
-                            //{
-                            //    txtTest.AppendText("nodes_hd" + nodes_HD[k] + " mao ");
-                            //}
                             weight_CR_HD.Add(drOperate["HD"].ToString().Trim(), Convert.ToInt32((drOperate["CR"]).ToString()));
                             weight_ET_HD.Add(drOperate["HD"].ToString().Trim(), Convert.ToInt32((drOperate["ET"]).ToString()));
                             weight_YE_HD.Add(drOperate["HD"].ToString().Trim(), Convert.ToInt32((drOperate["YE"]).ToString()));
@@ -705,60 +678,14 @@ namespace _20161018
                 //建立新表
                 StringBuilder sbCreate = new StringBuilder();
 
-                #region 通用生成建表语句
-                //sbCreate.Append("CREATE TABLE " + dtNew.TableName + ".dbf (");
-                //for (int i = 0; i < dtNew.Columns.Count; i++)
-                //{
-                //    sbCreate.Append(dtNew.Columns[i].ColumnName);
-                //    sbCreate.Append(" char(20)");
-                //    if (i != dtNew.Columns.Count - 1)
-                //    {
-                //        sbCreate.Append(", ");
-                //    }
-                //    else
-                //    {
-                //        sbCreate.Append(')');
-                //    }
-                //}
-                #endregion
-
                 //插入各行
                 StringBuilder sbInsert = new StringBuilder();
-                #region 通用生成插入sql语句
-                //foreach (DataRow dr in dtNew.Rows)
-                //{
-                //    sbInsert.Clear();
-                //    sbInsert.Append("INSERT INTO " + dtNew.TableName + ".dbf(");
-                //    for (int i = 0; i < columnCount; i++)
-                //    {
-                //        sbInsert.Append(dtNew.Columns[i].ColumnName);
-                //        if (i != columnCount - 1)
-                //        {
-                //            sbInsert.Append(", ");
-                //        }
-                //    }
-                //    sbInsert.Append(") VALUES (");
-                //    for (int i = 0; i < columnCount; i++)
-                //    {
-                //        sbInsert.Append("'" + @dr[i].ToString() + "'");
-                //        if (i != columnCount - 1)
-                //        {
-                //            sbInsert.Append(", ");
-                //        }
-                //    }
-                //    sbInsert.Append(')');
-
-                //    //txtTest.AppendText(sbInsert + "\n");
-
-                //    cmd = new OleDbCommand(sbInsert.ToString(), conn);
-                //    cmd.ExecuteNonQuery();
-                //}
-                #endregion
+                int i = 1;
                 if (methodName == "YY")
                 {
                     #region 写死的建表语句
                     sbCreate.Append("CREATE TABLE  " + dtNew.TableName + "_U.dbf("
-                        + "DATE1 char(8),"
+                        + "[DATE] char(8),"
                         + "HBH char(8),"
                         + "CODE_SHARE char(30),"
                         + "DW char(2),"
@@ -820,7 +747,7 @@ namespace _20161018
                         sbInsert.Clear();
                         #region 写死的插入语句
                         sbInsert.Append("INSERT INTO " + dtNew.TableName + "_U.dbf("
-                                + "DATE1, HBH, CODE_SHARE, DW, FXD, JH, JX, ZDYZ, ZDZW, HBXZ, "
+                                + "[DATE], HBH, CODE_SHARE, DW, FXD, JH, JX, ZDYZ, ZDZW, HBXZ, "
                                 + "HXFL, BC, HX, HD, HDFL, BC_HD, HDJL, R_HDJL, DMSJ, KZSJ, "
                                 + "APU, APUSJ, YCY, XJY, LCY, KGYZ, KGZW, CR, ET, YE, "
                                 + "TD, GW, XL, YJ, HW, CR_HD, ET_HD, YE_HD, XL_HD, YJ_HD, "
@@ -852,6 +779,8 @@ namespace _20161018
 
                         cmd = new OleDbCommand(sbInsert.ToString(), conn);
                         cmd.ExecuteNonQuery();
+                        progressParameter = 400 * i / dtNew.Rows.Count + 100;
+                        i++;
                     }
                 }
                 else if (methodName == "YT")
@@ -939,6 +868,8 @@ namespace _20161018
 
                         cmd = new OleDbCommand(sbInsert.ToString(), conn);
                         cmd.ExecuteNonQuery();
+                        progressParameter = 400 * i / dtNew.Rows.Count + 100;
+                        i++;
                     }
                 }
                 else
@@ -985,17 +916,10 @@ namespace _20161018
 
                         cmd = new OleDbCommand(sbInsert.ToString(), conn);
                         cmd.ExecuteNonQuery();
+                        progressParameter = 400 * i / dtNew.Rows.Count + 100;
+                        i++;
                     }
                 }
-
-                #region 修改字段名date1为date
-                //sbInsert.Clear();
-                //txtTest.AppendText("alter table " + dtNew.TableName + "_U.dbf rename column date1 to date\r\n");
-                //sbInsert.Append("alter table " + dtNew.TableName + ".dbf rename column date1 to date");
-                //cmd = new OleDbCommand(sbInsert.ToString(), conn);
-                //cmd.ExecuteNonQuery();
-                #endregion
-
             }
             catch (Exception ex)
             {
@@ -1032,8 +956,7 @@ namespace _20161018
                 File.Delete(dtNew.TableName + ".dbf");
             }
             btn_inputFile.Enabled = true;
-            btn_convertToDbf.Enabled = true;
-            btn_convertToXlsx.Enabled = true;
+            btn_convert.Enabled = true;
             timer1.Enabled = false;
             radioBtnYF.Enabled = true;
             radioBtnYT.Enabled = true;
@@ -1052,6 +975,7 @@ namespace _20161018
 
         private void btn_convertToXlsx_Click(object sender, EventArgs e)
         {
+            progressParameter = 0;
             txtTest.Text = "";
             timer1.Enabled = true;
             btn_stop.Enabled = true;
@@ -1068,16 +992,15 @@ namespace _20161018
         {
             startTime = DateTime.Now;
 
-            btn_convertToXlsx.Enabled = false;
             btn_inputFile.Enabled = false;
-            btn_convertToDbf.Enabled = false;
+            btn_convert.Enabled = false;
             radioBtnYY.Enabled = false;
             radioBtnYT.Enabled = false;
             radioBtnYF.Enabled = false;
 
             //写入DBF
             inputXlsx();
-
+            progressParameter += 10;
             txtTest.AppendText(dtOld.Rows.Count.ToString() + " " + dtOld.Columns.Count.ToString() + "\n");
             if (dtOld != null && dtOld.Rows.Count > 0)
             {
@@ -1087,43 +1010,40 @@ namespace _20161018
                 if (methodName == "YY")
                 {
                     init();
+                    progressParameter += 15;
                     doWithInitHD();
                     doWithDelete();
+                    progressParameter += 25;
                     doWithAdd();
                     doWithCODE_SHARE();
+                    progressParameter += 25;
                     doWithHD();
                     doWithOrder();
+                    progressParameter += 25;
                     outputXlsx();
                 }
                 else if (methodName == "YT")
                 {
+                    progressParameter += 15;
                     doWithDelete();
+                    progressParameter += 25;
                     doWithAdd();
+                    progressParameter += 25;
                     doWithOrder();
+                    progressParameter += 25;
                     outputXlsx();
                 }
                 else
                 {
+                    progressParameter += 30;
                     init();
+                    progressParameter += 60;
                     outputXlsx();
                 }
-                #region YY
-                //txtTest.AppendText("InitHD\n");
-                //doWithInitHD();
-                //txtTest.AppendText("Delete\n");
-                //doWithDelete();
-                //txtTest.AppendText("Add\n");
-                //doWithAdd();
-                ////doWithCODE_SHARE();
-                //txtTest.AppendText("HD\n");
-                //doWithHD();
-                //outputXlsx();
-                #endregion
             }
 
-            btn_convertToXlsx.Enabled = true;
             btn_inputFile.Enabled = true;
-            btn_convertToDbf.Enabled = true;
+            btn_convert.Enabled = true;
             btn_stop.Enabled = false;
             radioBtnYY.Enabled = true;
             radioBtnYT.Enabled = true;
@@ -1133,7 +1053,6 @@ namespace _20161018
             radioBtnYY.Checked = false;
 
             timer1.Enabled = false;
-            txtTest.AppendText("over");
             MessageBox.Show("数据转换完毕", "提示");
         }
 
@@ -1182,13 +1101,11 @@ namespace _20161018
             {
                 strConn2 = @"Provider=Microsoft.ACE.OLEDB.12.0;Data Source='{0}';Extended Properties='Excel 8.0;HDR=Yes;IMEX=1;';";
                 string strConnection = string.Format(strConn2, inPath);
-
                 OleDbConnection conn = new OleDbConnection(strConnection);
                 conn.Open();
                 String tableName = null;
                 DataTable dt = conn.GetOleDbSchemaTable(OleDbSchemaGuid.Tables, null);
                 tableName = dt.Rows[0][2].ToString().Trim();
-                txtTest.AppendText(tableName);
                 OleDbDataAdapter oada = new OleDbDataAdapter("select * from [" + tableName + "]", strConnection);
                 dtOld.TableName = "Old";
                 oada.Fill(dtOld);//获得datatable
@@ -1207,6 +1124,7 @@ namespace _20161018
         /// </summary>
         private void outputXlsx()
         {
+            int currentRow = 1;
             FileInfo newFile = new FileInfo(dtNew.TableName + ".xlsx");
             if (newFile.Exists)
             {
@@ -1227,65 +1145,14 @@ namespace _20161018
                     for (int j = 0; j < dtNew.Columns.Count; j++)
                     {
                         worksheet.Cells[i + 1, j + 1].Value = dr[j];
+                        progressParameter = 400 * currentRow / dtNew.Rows.Count + 100;
+                        currentRow++;
                     }
                     i++;
                 }
                 package.Save();//保存excel
             }
         }
-        //private void outputXlsx()
-        //{
-        //    //如果存在同名文件则先删除
-        //    if (File.Exists(dtNew.TableName + ".xlsx"))
-        //    {
-        //        txtTest.AppendText("Delete file: " + dtNew.TableName + ".xlsx ...");
-        //        File.Delete(dtNew.TableName + ".xlsx");
-        //    }
-
-        //    XSSFWorkbook xssfworkbook = new XSSFWorkbook();
-        //    XSSFSheet sheet1 = (XSSFSheet)xssfworkbook.CreateSheet("Sheet1");
-        //    XSSFRow row;
-        //    XSSFCell cell;
-        //    DataRow opDaterow;
-        //    //FileStream file = new FileStream(dtNew.TableName + ".xlsx", FileMode.Create);
-
-        //    txtTest.AppendText("Begin");
-        //    //写入字段名
-        //    row = (XSSFRow)sheet1.CreateRow(0);
-        //    for (int i = 0; i < dtNew.Columns.Count; i++)
-        //    {
-        //        cell = (XSSFCell)row.CreateCell(i);
-        //        cell.SetCellValue(dtNew.Columns[i].ColumnName);
-        //    }
-        //    txtTest.AppendText("Mid");
-        //    for (int i = 0; i < dtNew.Rows.Count; i++)
-        //    {
-        //        opDaterow = dtNew.Rows[i];
-
-        //        row = (XSSFRow)sheet1.CreateRow(i + 1);
-        //        for (int j = 0; j < dtNew.Columns.Count; j++)
-        //        {
-        //            cell = (XSSFCell)row.CreateCell(j);
-        //            cell.SetCellValue(opDaterow[j].ToString());
-
-        //        }
-        //    }
-        //    txtTest.AppendText("Finish");
-
-        //    try
-        //    {
-        //        FileStream file = new FileStream(dtNew.TableName + ".xlsx", FileMode.Create);
-        //        txtTest.AppendText("111");
-        //        xssfworkbook.Write(file);
-        //        txtTest.AppendText("222");
-        //        file.Close();
-        //        txtTest.AppendText("333");
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        txtTest.AppendText(ex.Message);
-        //    }
-        //}
 
         private void radioBtnYY_CheckedChanged(object sender, EventArgs e)
         {
@@ -1295,8 +1162,7 @@ namespace _20161018
             }
             if (txt_showPath.Text != "")
             {
-                btn_convertToDbf.Enabled = true;
-                btn_convertToXlsx.Enabled = true;
+                btn_convert.Enabled = true;
             }
         }
 
@@ -1308,8 +1174,7 @@ namespace _20161018
             }
             if (txt_showPath.Text != "")
             {
-                btn_convertToDbf.Enabled = true;
-                btn_convertToXlsx.Enabled = true;
+                btn_convert.Enabled = true;
             }
         }
 
@@ -1321,24 +1186,10 @@ namespace _20161018
             }
             if (txt_showPath.Text != "")
             {
-                btn_convertToDbf.Enabled = true;
-                btn_convertToXlsx.Enabled = true;
+                btn_convert.Enabled = true;
             }
         }
 
-        private void btn_progressBar_Click(object sender, EventArgs e)
-        {
-            proBarThread = new Thread(SleepT);
-            proBarThread.Start();
-        }
-        private void SleepT()
-        {
-            for (int i = 0; i <= 500; i++)
-            {
-                System.Threading.Thread.Sleep(10);
-                SetTextMesssage(100 * i / 500, i.ToString() + "\r\n");
-            }
-        }
 
         private void SetTextMesssage(int ipos, string vinfo)
         {
@@ -1351,8 +1202,12 @@ namespace _20161018
             {
                 this.lab_test.Text = ipos.ToString() + "/100";
                 this.progressBar1.Value = Convert.ToInt32(ipos);
-                this.txtTest.AppendText(vinfo);
             }
+        }
+
+        private void timer2_Tick(object sender, EventArgs e)
+        {
+            SetTextMesssage(100 * progressParameter / 500, progressParameter.ToString() + "\r\n");
         }
     }
 }
