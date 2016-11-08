@@ -1,0 +1,7 @@
+*.svn
+classes
+*.class
+*.exe
+Thumbs.db   # image cache file
+bin
+*~
