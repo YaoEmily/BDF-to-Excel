@@ -57,11 +57,11 @@
             // 
             // txtTest
             // 
-            this.txtTest.Location = new System.Drawing.Point(12, 185);
+            this.txtTest.Location = new System.Drawing.Point(12, 153);
             this.txtTest.Multiline = true;
             this.txtTest.Name = "txtTest";
             this.txtTest.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.txtTest.Size = new System.Drawing.Size(378, 139);
+            this.txtTest.Size = new System.Drawing.Size(378, 114);
             this.txtTest.TabIndex = 1;
             // 
             // txt_showPath
@@ -150,7 +150,7 @@
             // 
             // progressBar1
             // 
-            this.progressBar1.Location = new System.Drawing.Point(13, 112);
+            this.progressBar1.Location = new System.Drawing.Point(12, 112);
             this.progressBar1.Name = "progressBar1";
             this.progressBar1.Size = new System.Drawing.Size(377, 23);
             this.progressBar1.TabIndex = 12;
@@ -158,7 +158,7 @@
             // lab_test
             // 
             this.lab_test.AutoSize = true;
-            this.lab_test.Location = new System.Drawing.Point(12, 146);
+            this.lab_test.Location = new System.Drawing.Point(12, 138);
             this.lab_test.Name = "lab_test";
             this.lab_test.Size = new System.Drawing.Size(35, 12);
             this.lab_test.TabIndex = 14;
@@ -172,7 +172,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(402, 336);
+            this.ClientSize = new System.Drawing.Size(402, 280);
             this.Controls.Add(this.lab_test);
             this.Controls.Add(this.progressBar1);
             this.Controls.Add(this.radioBtnYF);

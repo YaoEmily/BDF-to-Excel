@@ -241,7 +241,7 @@ namespace _20161018
                 dtNew.TableName = fileName;
                 if (!isLegal())
                 {
-                    MessageBox.Show("文件格式错误", "提示");
+                    txtTest.AppendText("文件格式错误，请重新选择文件或类型\n");
                     endControl();
                     return;
                 }
@@ -283,12 +283,12 @@ namespace _20161018
                 }
             }
             endControl();
-            MessageBox.Show("数据转换完毕","提示");
+            MessageBox.Show("数据转换完毕", "提示");
         }
 
 
         /// <summary>
-        /// 运行完毕后的控件初始化函数
+        /// 转换完毕后的控件初始化函数
         /// </summary>
         private void endControl()
         {
@@ -305,7 +305,9 @@ namespace _20161018
             timer1.Enabled = false;
         }
 
-
+        /// <summary>
+        /// 转换开始后的空间初始化函数
+        /// </summary>
         private void startControl()
         {
             btn_inputFile.Enabled = false;
@@ -329,16 +331,23 @@ namespace _20161018
 
             OleDbConnection conn = new OleDbConnection();
             string table = filePath;
-
             string connStr = @"Provider=VFPOLEDB.1;Data Source=" + directory + ";Collating Sequence=MACHINE";
 
-            conn.ConnectionString = connStr;
-            conn.Open();
+            try
+            {
+                conn.ConnectionString = connStr;
+                conn.Open();
 
-            string sql = @"select * from " + fileName;
-            OleDbDataAdapter da = new OleDbDataAdapter(sql, conn);
+                string sql = @"select * from " + fileName;
+                OleDbDataAdapter da = new OleDbDataAdapter(sql, conn);
 
-            da.Fill(dtOld);
+                da.Fill(dtOld);
+            }
+            catch (Exception ex)
+            {
+                conn.Close();
+                txtTest.AppendText(ex.Message);
+            }
         }
 
         /// <summary>
@@ -347,16 +356,16 @@ namespace _20161018
         private Boolean isLegal()
         {
             int i;
-            if(methodName == "YY")
+            if (methodName == "YY")
             {
-                for(i = 0;i<arrYYT.Length;i++)
+                for (i = 0; i < arrYYT.Length; i++)
                 {
                     if (dtNew.Columns[arrYYT[i]] == null)
                     {
                         //txtTest.AppendText(arrYYT[i]);
                         return false;
                     }
-                        
+
                 }
                 for (i = 0; i < arrYYF.Length; i++)
                 {
@@ -623,7 +632,6 @@ namespace _20161018
                 for (int i = 0; i < dtNew.Rows.Count; i++)
                 {
                     drOperate = dtNew.Rows[i];
-                    //txtTest.AppendText("外1+ 行数=" + i + "HBH" + drOperate["hbh"] + "\n");
                     currentLine++;
                     drOperate["CR_HD"] = 0;
                     drOperate["ET_HD"] = 0;
@@ -659,7 +667,6 @@ namespace _20161018
                             weight_XL_HD.Clear();
                             weight_YJ_HD.Clear();
                             weight_HW_HD.Clear();
-                            txtTest.AppendText(allLine.ToString());
                             for (int k = 0; k < allLine; k++)
                             {
 
@@ -836,16 +843,16 @@ namespace _20161018
         /// </summary>
         private void outputDBF()
         {
-            //dtNew.TableName = "New";
+#if DEBUG
             txtTest.AppendText("Writing to: " + dtNew.TableName + ".dbf ...");
-
+#endif
             //连接字符串
             string sConn =
                 "Provider=Microsoft.Jet.OLEDB.4.0; " +
                 "Data Source=" + System.IO.Directory.GetCurrentDirectory() + "; " +
                 "Extended Properties=dBASE IV;";
             OleDbConnection conn = new OleDbConnection(sConn);
-            conn.Open();    
+            conn.Open();
 
             int columnCount = dtNew.Columns.Count;
             try
@@ -853,7 +860,9 @@ namespace _20161018
                 //如果存在同名文件则先删除
                 if (File.Exists(dtNew.TableName + "_U.DBF"))
                 {
+#if DEBUG
                     txtTest.AppendText("Delete file: " + dtNew.TableName + "_U.DBF ...");
+#endif
                     File.Delete(dtNew.TableName + "_U.DBF");
                 }
 
@@ -923,7 +932,9 @@ namespace _20161018
                     );
                     #endregion
 
+#if DEBUG
                     txtTest.AppendText(sbCreate.ToString());
+#endif
                     cmd = new OleDbCommand(sbCreate.ToString(), conn);
                     cmd.ExecuteNonQuery();
                     foreach (DataRow dr in dtNew.Rows)
@@ -959,7 +970,6 @@ namespace _20161018
                                 + "\"" + dr["BJD"].ToString().Trim() + "\""
                                 + ")");
                         #endregion
-                        //txtTest.AppendText(sbInsert + "\n");
 
                         cmd = new OleDbCommand(sbInsert.ToString(), conn);
                         cmd.ExecuteNonQuery();
@@ -1004,7 +1014,10 @@ namespace _20161018
                         + ") "
                     );
                     #endregion
+
+#if DEBUG
                     txtTest.AppendText(sbCreate + "\n");
+#endif
                     cmd = new OleDbCommand(sbCreate.ToString(), conn);
                     cmd.ExecuteNonQuery();
                     foreach (DataRow dr in dtNew.Rows)
@@ -1048,8 +1061,10 @@ namespace _20161018
                                 + "\"" + dr["PBM"].ToString().Trim() + "\""
                                 + ")");
                         #endregion
-                        txtTest.AppendText(sbInsert + "\n");
 
+#if DEBUG
+                        txtTest.AppendText(sbInsert + "\n");
+#endif
                         cmd = new OleDbCommand(sbInsert.ToString(), conn);
                         cmd.ExecuteNonQuery();
                         progressParameter = 400 * i / dtNew.Rows.Count + 100;
@@ -1096,7 +1111,6 @@ namespace _20161018
                                 + "\"" + dr["BZ"].ToString().Trim() + "\"" + ","
                                 + ")");
                         #endregion
-                        //txtTest.AppendText(sbInsert + "\n");
 
                         cmd = new OleDbCommand(sbInsert.ToString(), conn);
                         cmd.ExecuteNonQuery();
@@ -1136,7 +1150,9 @@ namespace _20161018
             btn_stop.Enabled = false;
             if (File.Exists(dtNew.TableName + ".dbf"))
             {
+#if DEBUG
                 txtTest.AppendText("Delete file: " + dtNew.TableName + ".dbf ...");
+#endif
                 File.Delete(dtNew.TableName + ".dbf");
             }
             btn_inputFile.Enabled = true;
@@ -1146,13 +1162,6 @@ namespace _20161018
             radioBtnYT.Enabled = true;
             radioBtnYY.Enabled = true;
         }
-
-
-
-
-
-
-
 
 
         /// <summary>
@@ -1168,7 +1177,9 @@ namespace _20161018
             //写入DBF
             inputXlsx();
             progressParameter += 10;
+#if DEBUG
             txtTest.AppendText(dtOld.Rows.Count.ToString() + " " + dtOld.Columns.Count.ToString() + "\n");
+#endif
             if (dtOld != null && dtOld.Rows.Count > 0)
             {
                 dtNew = dtOld.Copy();
@@ -1176,7 +1187,7 @@ namespace _20161018
 
                 if (!isLegal())
                 {
-                    MessageBox.Show("文件格式错误", "提示");
+                    txtTest.AppendText("文件格式错误，请重新选择文件或类型\n");
                     endControl();
                     return;
                 }
@@ -1261,11 +1272,12 @@ namespace _20161018
             FileInfo fileInfo = new FileInfo(filePath);
             string directory = fileInfo.DirectoryName;
 
+
+            strConn2 = @"Provider=Microsoft.ACE.OLEDB.12.0;Data Source='{0}';Extended Properties='Excel 8.0;HDR=Yes;IMEX=1;';";
+            string strConnection = string.Format(strConn2, inPath);
+            OleDbConnection conn = new OleDbConnection(strConnection);
             try
             {
-                strConn2 = @"Provider=Microsoft.ACE.OLEDB.12.0;Data Source='{0}';Extended Properties='Excel 8.0;HDR=Yes;IMEX=1;';";
-                string strConnection = string.Format(strConn2, inPath);
-                OleDbConnection conn = new OleDbConnection(strConnection);
                 conn.Open();
                 String tableName = null;
                 DataTable dt = conn.GetOleDbSchemaTable(OleDbSchemaGuid.Tables, null);
@@ -1277,6 +1289,7 @@ namespace _20161018
             }
             catch (Exception ex)
             {
+                conn.Close();
                 txtTest.AppendText(ex.Message + "\n");
             }
         }
