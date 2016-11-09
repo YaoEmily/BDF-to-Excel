@@ -28,6 +28,7 @@ namespace _20161018
         private DateTime startTime;
         private DateTime endTime;
         TimeSpan subTime;
+        private int progressParameter = 0;
 
         private int nodes_HD_Num;
         private String[] nodes_HD;
@@ -39,12 +40,115 @@ namespace _20161018
         private Dictionary<String, int> weight_HW_HD = new Dictionary<string, int>();
         private int allLine;
         private int currentLine;
-        private int progressParameter = 0;
-
         private String HX;
 
         private delegate void SetPos(int ipos, string vinfo);
 
+        #region 三种标准文件类型的字段数组
+        private String[] arrYYT = {
+                                     "DATE", 
+                                     "HBH",
+                                     "DW", 
+                                     "FXD", 
+                                     "JH",
+                                     "JX",
+                                     "ZDYZ",
+                                     "ZDZW",
+                                     "HBXZ",
+                                     "HXFL",
+                                     "BC",
+                                     "HX",
+                                     "HD",
+                                     "HDFL",
+                                     "BC_HD",
+                                     "HDJL",
+                                     "DMSJ",
+                                     "KZSJ",
+                                     "APU",
+                                     "YCY",
+                                     "XJY",
+                                     "LCY",
+                                     "KGYZ",
+                                     "KGZW",
+                                     "CR",
+                                     "ET",
+                                     "YE",
+                                     "TD",
+                                     "GW",
+                                     "XL",
+                                     "YJ",
+                                     "HW",
+                                     "PBM",
+                                     "CLDSK",
+                                     "QFSK",
+                                     "JLSK",
+                                     "SLDSK",
+                                     "GMT",
+                                     "HX0",
+                                     "XSF"
+                                 };
+        private String[] arrYYF = {
+                                      "CODE_SHARE",
+                                      "R_HDJL",
+                                      "APUSJ",
+                                      "CR_HD",
+                                      "ET_HD",
+                                      "YE_HD",
+                                      "XL_HD",
+                                      "YJ_HD",
+                                      "HW_HD",
+                                      "HXSK",
+                                      "BJ",
+                                      "BJD"
+                                  };
+        private String[] arrYTT = {
+                                     "DATE",
+                                     "DW",
+                                     "FXD",
+                                     "JH",
+                                     "JX",
+                                     "ZDYZ",
+                                     "ZDZW",
+                                     "HBXZ",
+                                     "DQDH",
+                                     "DQMC",
+                                     "HX",
+                                     "HD",
+                                     "HDJL",
+                                     "DMSJ",
+                                     "KZSJ",
+                                     "APU",
+                                     "YCY",
+                                     "XJY",
+                                     "LCY",
+                                     "ZYMJ",
+                                     "BC",
+                                     "TYHK",
+                                     "PBM",
+                                     "HX0"
+                                 };
+        private String[] arrYTF = {
+                                      "HBH",
+                                      "CLDSK",
+                                      "HXSK",
+                                      "QFSK",
+                                      "JLSK",
+                                      "SLDSK",
+                                      "APUSJ"
+                                  };
+        private String[] arrYFT = {
+                                     "DATE",
+                                     "DW",
+                                     "FXD",
+                                     "JH",
+                                     "JX",
+                                     "QMJS",
+                                     "ZCYS",
+                                     "KYTS",
+                                     "PBM",
+                                     "BZ"
+                                 };
+        #endregion
 
         public Form1()
         {
@@ -84,8 +188,6 @@ namespace _20161018
         }
 
 
-
-
         /// <summary>
         /// 转换按钮点击触发事件
         /// </summary>
@@ -123,20 +225,26 @@ namespace _20161018
         {
             startTime = DateTime.Now;
 
-            btn_inputFile.Enabled = false;
-            btn_convert.Enabled = false;
-            radioBtnYY.Enabled = false;
-            radioBtnYT.Enabled = false;
-            radioBtnYF.Enabled = false;
+            startControl();
 
             //写入DBF
             inputDBF();
+
             progressParameter += 10;
+
+#if DEBUG
             txtTest.AppendText(dtOld.Rows.Count.ToString() + " " + dtOld.Columns.Count.ToString() + "\n");
+#endif
             if (dtOld != null && dtOld.Rows.Count > 0)
             {
                 dtNew = dtOld.Copy();
                 dtNew.TableName = fileName;
+                if (!isLegal())
+                {
+                    MessageBox.Show("文件格式错误", "提示");
+                    endControl();
+                    return;
+                }
                 if (dtNew.Columns["date"] != null)
                 {
                     dtNew.Columns["DATE"].ColumnName = "DATE1";
@@ -173,8 +281,17 @@ namespace _20161018
                     progressParameter += 60;
                     outputDBF();
                 }
-                
             }
+            endControl();
+            MessageBox.Show("数据转换完毕","提示");
+        }
+
+
+        /// <summary>
+        /// 运行完毕后的控件初始化函数
+        /// </summary>
+        private void endControl()
+        {
             btn_inputFile.Enabled = true;
             btn_convert.Enabled = true;
             btn_stop.Enabled = false;
@@ -185,8 +302,17 @@ namespace _20161018
             radioBtnYF.Checked = false;
             radioBtnYT.Checked = false;
             radioBtnYY.Checked = false;
-            txtTest.AppendText("over");
-            MessageBox.Show("数据转换完毕","提示");
+            timer1.Enabled = false;
+        }
+
+
+        private void startControl()
+        {
+            btn_inputFile.Enabled = false;
+            btn_convert.Enabled = false;
+            radioBtnYY.Enabled = false;
+            radioBtnYT.Enabled = false;
+            radioBtnYF.Enabled = false;
         }
 
 
@@ -213,6 +339,64 @@ namespace _20161018
             OleDbDataAdapter da = new OleDbDataAdapter(sql, conn);
 
             da.Fill(dtOld);
+        }
+
+        /// <summary>
+        /// 判断文件是否符合规则
+        /// </summary>
+        private Boolean isLegal()
+        {
+            int i;
+            if(methodName == "YY")
+            {
+                for(i = 0;i<arrYYT.Length;i++)
+                {
+                    if (dtNew.Columns[arrYYT[i]] == null)
+                    {
+                        //txtTest.AppendText(arrYYT[i]);
+                        return false;
+                    }
+                        
+                }
+                for (i = 0; i < arrYYF.Length; i++)
+                {
+                    if (dtNew.Columns[arrYYF[i]] != null)
+                    {
+                        //txtTest.AppendText(arrYYT[i]);
+                        return false;
+                    }
+                }
+            }
+            else if (methodName == "YT")
+            {
+                for (i = 0; i < arrYTT.Length; i++)
+                {
+                    if (dtNew.Columns[arrYTT[i]] == null)
+                    {
+                        return false;
+                    }
+
+                }
+                for (i = 0; i < arrYTF.Length; i++)
+                {
+                    if (dtNew.Columns[arrYTF[i]] != null)
+                    {
+                        return false;
+                    }
+                }
+            }
+            else
+            {
+                for (i = 0; i < arrYFT.Length; i++)
+                {
+                    if (dtNew.Columns[arrYFT[i]] == null)
+                    {
+                        return false;
+                    }
+
+                }
+            }
+            return true;
         }
 
 
@@ -978,11 +1162,8 @@ namespace _20161018
         {
             startTime = DateTime.Now;
 
-            btn_inputFile.Enabled = false;
-            btn_convert.Enabled = false;
-            radioBtnYY.Enabled = false;
-            radioBtnYT.Enabled = false;
-            radioBtnYF.Enabled = false;
+            startControl();
+
 
             //写入DBF
             inputXlsx();
@@ -992,6 +1173,13 @@ namespace _20161018
             {
                 dtNew = dtOld.Copy();
                 dtNew.TableName = fileName;
+
+                if (!isLegal())
+                {
+                    MessageBox.Show("文件格式错误", "提示");
+                    endControl();
+                    return;
+                }
 
                 if (methodName == "YY")
                 {
@@ -1028,17 +1216,7 @@ namespace _20161018
                 }
             }
 
-            btn_inputFile.Enabled = true;
-            btn_convert.Enabled = true;
-            btn_stop.Enabled = false;
-            radioBtnYY.Enabled = true;
-            radioBtnYT.Enabled = true;
-            radioBtnYF.Enabled = true;
-            radioBtnYF.Checked = false;
-            radioBtnYT.Checked = false;
-            radioBtnYY.Checked = false;
-
-            timer1.Enabled = false;
+            endControl();
             MessageBox.Show("数据转换完毕", "提示");
         }
 
