@@ -283,7 +283,7 @@ namespace _20161018
                 }
             }
             endControl();
-            MessageBox.Show("数据转换完毕", "提示");
+            txtTest.AppendText("数据转换完毕\n");
         }
 
 
@@ -299,10 +299,10 @@ namespace _20161018
             radioBtnYF.Enabled = true;
             radioBtnYT.Enabled = true;
             radioBtnYY.Enabled = true;
-            radioBtnYF.Checked = false;
-            radioBtnYT.Checked = false;
-            radioBtnYY.Checked = false;
             timer1.Enabled = false;
+
+            dtOld.Clear();
+            dtNew.Clear();
         }
 
         /// <summary>
@@ -315,6 +315,19 @@ namespace _20161018
             radioBtnYY.Enabled = false;
             radioBtnYT.Enabled = false;
             radioBtnYF.Enabled = false;
+
+            dtOld.Clear();
+            dtNew.Clear();
+
+            weight_CR_HD.Clear();
+            weight_ET_HD.Clear();
+            weight_YE_HD.Clear();
+            weight_XL_HD.Clear();
+            weight_YJ_HD.Clear();
+            weight_HW_HD.Clear();
+
+            currentLine = 0;
+            allLine = 0;
         }
 
 
@@ -877,7 +890,7 @@ namespace _20161018
                 if (methodName == "YY")
                 {
                     #region 写死的建表语句
-                    sbCreate.Append("CREATE TABLE  " + dtNew.TableName + "_U.dbf("
+                    sbCreate.Append("CREATE TABLE " + dtNew.TableName + "_U.dbf("
                         + "[DATE] char(8),"
                         + "HBH char(8),"
                         + "CODE_SHARE char(30),"
@@ -970,7 +983,10 @@ namespace _20161018
                                 + "\"" + dr["BJD"].ToString().Trim() + "\""
                                 + ")");
                         #endregion
-
+#if DEBUG
+                        //txtTest.AppendText(sbInsert + "\n");
+                        
+#endif
                         cmd = new OleDbCommand(sbInsert.ToString(), conn);
                         cmd.ExecuteNonQuery();
                         progressParameter = 400 * i / dtNew.Rows.Count + 100;
@@ -981,7 +997,7 @@ namespace _20161018
                 {
                     #region 写死的建表语句
                     sbCreate.Append("CREATE TABLE  " + dtNew.TableName + "_U.dbf ("
-                        + "DATE1 char(8),"
+                        + "[DATE] char(8),"
                         + "DW char(2),"
                         + "FXD char(5),"
                         + "HBH char(8), "
@@ -1025,7 +1041,7 @@ namespace _20161018
                         sbInsert.Clear();
                         #region 写死的插入语句
                         sbInsert.Append("INSERT INTO " + dtNew.TableName + "_U.dbf("
-                                + "DATE1, DW, FXD, HBH, JH, JX, ZDYZ, ZDZW, HBXZ, DQDH, "
+                                + "[DATE], DW, FXD, HBH, JH, JX, ZDYZ, ZDZW, HBXZ, DQDH, "
                                 + "DQMC, HX, HD, HDJL, DMSJ, KZSJ, CLDSK, HXSK, QFSK, JLSK, "
                                 + "SLDSK, APU, APUSJ, YCY, XJY, LCY, ZYMJ, BC, TYHK, PBM"
                                 + ") VALUES ("
@@ -1075,7 +1091,7 @@ namespace _20161018
                 {
                     #region 写死的建表语句
                     sbCreate.Append("CREATE TABLE  " + dtNew.TableName + "_U.dbf ("
-                        + "DATE1 char(8),"
+                        + "[DATE] char(8),"
                         + "DW char(2),"
                         + "FXD char(5),"
                         + "JH char(8),"
@@ -1095,7 +1111,7 @@ namespace _20161018
                         sbInsert.Clear();
                         #region 写死的插入语句
                         sbInsert.Append("INSERT INTO " + dtNew.TableName + "_U.dbf("
-                                + "DATE1, DW, FXD, HBH, JH, JX, ZDYZ, ZDZW, HBXZ, DQDH, "
+                                + "[DATE], DW, FXD, HBH, JH, JX, ZDYZ, ZDZW, HBXZ, DQDH, "
                                 + "DQMC, HX, HD, HDJL, DMSJ, KZSJ, CLDSK, HXSK, QFSK, JLSK, "
                                 + "SLDSK, APU, APUSJ, YCY, XJY, LCY, ZYMJ, BC, TYHK, PBM"
                                 + ") VALUES ("
@@ -1155,12 +1171,7 @@ namespace _20161018
 #endif
                 File.Delete(dtNew.TableName + ".dbf");
             }
-            btn_inputFile.Enabled = true;
-            btn_convert.Enabled = true;
-            timer1.Enabled = false;
-            radioBtnYF.Enabled = true;
-            radioBtnYT.Enabled = true;
-            radioBtnYY.Enabled = true;
+            endControl();
         }
 
 
@@ -1228,7 +1239,7 @@ namespace _20161018
             }
 
             endControl();
-            MessageBox.Show("数据转换完毕", "提示");
+            txtTest.AppendText("数据转换完毕\n");
         }
 
 

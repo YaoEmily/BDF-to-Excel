@@ -10,3 +10,4 @@ D:\Documents\GitHub\ConvertKid\20161018\20161018\obj\Release\_20161018.Propertie
 D:\Documents\GitHub\ConvertKid\20161018\20161018\obj\Release\ConvertKid.csproj.GenerateResource.Cache
 D:\Documents\GitHub\ConvertKid\20161018\20161018\obj\Release\20161018.exe
 D:\Documents\GitHub\ConvertKid\20161018\20161018\obj\Release\20161018.pdb
+D:\Documents\GitHub\ConvertKid\20161018\20161018\obj\Release\ConvertKid.csprojResolveAssemblyReference.cache
