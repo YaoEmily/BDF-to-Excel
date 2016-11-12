@@ -7,8 +7,8 @@
     <ProjectGuid>{AC78A979-941C-45A4-B183-7EA916AD1277}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>_20161018</RootNamespace>
-    <AssemblyName>20161018</AssemblyName>
+    <RootNamespace>_ConvertKid</RootNamespace>
+    <AssemblyName>ConvertKid</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
