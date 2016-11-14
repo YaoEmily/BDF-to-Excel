@@ -359,7 +359,7 @@ namespace _20161018
             catch (Exception ex)
             {
                 conn.Close();
-                txtTest.AppendText(ex.Message);
+                txtTest.AppendText("inputDBF" + ex.Message);
             }
         }
 
@@ -1424,6 +1424,12 @@ namespace _20161018
         private void timer2_Tick(object sender, EventArgs e)
         {
             SetTextMesssage(100 * progressParameter / 500, progressParameter.ToString() + "\r\n");
+        }
+
+        private void btn_install_Click(object sender, EventArgs e)
+        {
+            System.Diagnostics.Process.Start("AccessDatabaseEngine.exe");
+            System.Diagnostics.Process.Start("VFPOLEDBSetup.msi");
         }
     }
 }
